@@ -1,20 +1,16 @@
 package co.com.bancolombia.mongo;
 
-import co.com.bancolombia.mongo.helper.AdapterOperations;
+import co.com.bancolombia.model.franchise.Franchise;
+import co.com.bancolombia.model.franchise.gateways.FranchiseRepository;
 import org.reactivecommons.utils.ObjectMapper;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class MongoRepositoryAdapter extends AdapterOperations<Object/* change for domain model */, Object/* change for adapter model */, String, MongoDBRepository>
-// implements ModelRepository from domain
-{
+public class MongoRepositoryAdapter extends AdapterOperations<Franchise, Franchise, String, MongoDBRepository>
+        implements FranchiseRepository {
 
     public MongoRepositoryAdapter(MongoDBRepository repository, ObjectMapper mapper) {
-        /**
-         *  Could be use mapper.mapBuilder if your domain model implement builder pattern
-         *  super(repository, mapper, d -> mapper.mapBuilder(d,ObjectModel.ObjectModelBuilder.class).build());
-         *  Or using mapper.map with the class of the object model
-         */
-        super(repository, mapper, d -> mapper.map(d, Object.class/* change for domain model */));
+        // Si tu modelo de dominio es igual al del adaptador, puedes mapear directamente así:
+        super(repository, mapper, d -> mapper.map(d, Franchise.class));
     }
 }
