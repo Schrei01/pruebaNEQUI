@@ -1,47 +1,56 @@
-# Proyecto Base Implementando Clean Architecture
+# Franchise Management API
 
-## Antes de Iniciar
+Este proyecto implementa una API reactiva para la gestión de franquicias, sucursales y productos, utilizando **Spring WebFlux**, **MongoDB** y el enfoque de **Clean Architecture** provisto por el plugin de Bancolombia.
 
-Empezaremos por explicar los diferentes componentes del proyectos y partiremos de los componentes externos, continuando con los componentes core de negocio (dominio) y por último el inicio y configuración de la aplicación.
+## 🚀 Características
 
-Lee el artículo [Clean Architecture — Aislando los detalles](https://medium.com/bancolombia-tech/clean-architecture-aislando-los-detalles-4f9530f35d7a)
+- **Spring WebFlux** para programación reactiva y no bloqueante.
+- **Clean Architecture** para mantener la separación de responsabilidades.
+- **MongoDB** como base de datos NoSQL reactiva.
+- **Handlers funcionales** en lugar de controladores tradicionales.
+- **Validación de arquitectura** con `validateStructure`.
+- **Tests unitarios** con WebTestClient y Mockito.
 
-# Arquitectura
+---
 
-![Clean Architecture](https://miro.medium.com/max/1400/1*ZdlHz8B0-qu9Y-QO3AXR_w.png)
+## 🏗️ Requisitos
 
-## Domain
+- Java 21+
+- Gradle 8.4+
+- Docker (opcional, para MongoDB local)
+- MongoDB o contenedor con `docker run -d -p 27017:27017 mongo`
 
-Es el módulo más interno de la arquitectura, pertenece a la capa del dominio y encapsula la lógica y reglas del negocio mediante modelos y entidades del dominio.
+---
 
-## Usecases
+## 📂 Estructura del proyecto
 
-Este módulo gradle perteneciente a la capa del dominio, implementa los casos de uso del sistema, define lógica de aplicación y reacciona a las invocaciones desde el módulo de entry points, orquestando los flujos hacia el módulo de entities.
 
-## Infrastructure
+**Reglas de dependencias (`validateStructure`):**
+- **Model**: sin dependencias externas.
+- **UseCase**: depende solo de Model.
+- **Infraestructura**: puede depender de Model y UseCase.
+- **App-Service**: capa más externa, depende de todos.
 
-### Helpers
+---
 
-En el apartado de helpers tendremos utilidades generales para los Driven Adapters y Entry Points.
+## ⚡ Ejecución
 
-Estas utilidades no están arraigadas a objetos concretos, se realiza el uso de generics para modelar comportamientos
-genéricos de los diferentes objetos de persistencia que puedan existir, este tipo de implementaciones se realizan
-basadas en el patrón de diseño [Unit of Work y Repository](https://medium.com/@krzychukosobudzki/repository-design-pattern-bc490b256006)
+### 1. Clonar el repositorio
+```bash
+git clone https://github.com/mi-org/franchise-api.git
+cd franchise-api
 
-Estas clases no puede existir solas y debe heredarse su compartimiento en los **Driven Adapters**
+./gradlew clean build
+./gradlew bootRun
 
-### Driven Adapters
+http://localhost:8080
 
-Los driven adapter representan implementaciones externas a nuestro sistema, como lo son conexiones a servicios rest,
-soap, bases de datos, lectura de archivos planos, y en concreto cualquier origen y fuente de datos con la que debamos
-interactuar.
+| Método | Endpoint                                                                                      | Descripción                                   |
+| ------ | --------------------------------------------------------------------------------------------- | --------------------------------------------- |
+| POST   | `/api/franchises`                                                                             | Crear una franquicia                          |
+| POST   | `/api/franchises/{franchiseId}/branches`                                                      | Agregar una sucursal                          |
+| POST   | `/api/franchises/{franchiseId}/branches/{branchName}/products`                                | Agregar un producto a una sucursal            |
+| DELETE | `/api/franchises/{franchiseId}/branches/{branchName}/products/{productName}`                  | Eliminar un producto                          |
+| PUT    | `/api/franchises/{franchiseId}/branches/{branchName}/products/{productName}/stock/{newStock}` | Actualizar stock del producto                 |
+| GET    | `/api/franchises/{franchiseId}/branches/top-products`                                         | Obtener producto con mayor stock por sucursal |
 
-### Entry Points
-
-Los entry points representan los puntos de entrada de la aplicación o el inicio de los flujos de negocio.
-
-## Application
-
-Este módulo es el más externo de la arquitectura, es el encargado de ensamblar los distintos módulos, resolver las dependencias y crear los beans de los casos de use (UseCases) de forma automática, inyectando en éstos instancias concretas de las dependencias declaradas. Además inicia la aplicación (es el único módulo del proyecto donde encontraremos la función “public static void main(String[] args)”.
-
-**Los beans de los casos de uso se disponibilizan automaticamente gracias a un '@ComponentScan' ubicado en esta capa.**
